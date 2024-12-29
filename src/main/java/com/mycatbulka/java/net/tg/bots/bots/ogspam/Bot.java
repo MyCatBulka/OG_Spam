@@ -47,7 +47,7 @@ public class Bot extends TelegramLongPollingBot {
                 lethal_triggers = (List<String>) obj;
                 Logging.trace("Bot", "Successful loaded triggers");
             } catch (Exception e) {
-                Logging.error("Bot", "!Can`t load riggers.obj!", e);
+                Logging.error("Bot", "!Can`t load triggers.obj!", e);
                 lethal_triggers = new ArrayList<>();
             }
         }
@@ -74,6 +74,7 @@ public class Bot extends TelegramLongPollingBot {
         if(update.hasMessage()){
             if(update.getMessage().hasText()){
                 Message message = update.getMessage();
+                int message_id = message.getMessageId();
                 String text = message.getText();
                 long in_chat_id = message.getChatId();
                 if(chat_id == 0 || in_chat_id == chat_id){
@@ -81,7 +82,7 @@ public class Bot extends TelegramLongPollingBot {
                         for (String trigger : lethal_triggers) {
                             if (text.contains(trigger)) {
                                 ban(message.getFrom().getId());
-                                deleteMsg(message.getMessageId());
+                                deleteMsg(message_id);
                             }
                         }
                     }
@@ -89,6 +90,7 @@ public class Bot extends TelegramLongPollingBot {
                     if(text.startsWith("/")){
                         String commandName = getCommandName(text);
                         if(commandName != null){
+                            deleteMsg(message_id);
                             commandName = commandName.toLowerCase();
                             Logging.trace("Bot", TextFormat.format("Got command $ from $ $ @$ in $", commandName, message.getFrom().getFirstName(), message.getFrom().getLastName(), message.getFrom().getUserName(), message.getChat().getTitle()));
                             String arg;
@@ -149,7 +151,7 @@ public class Bot extends TelegramLongPollingBot {
             }
             if(added) {
                 saveTriggers();
-                sendMessage("Successful added trigger");
+                sendMessage("Successful add trigger");
             } else {
                 sendMessage("Can't added trigger");
             }
